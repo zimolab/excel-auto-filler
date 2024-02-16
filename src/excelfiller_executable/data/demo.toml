@@ -1,0 +1,35 @@
+version = 1
+
+[rules_globals]
+g_var = "this var can be accessed in ContextAwareFunction via context.rules_globals['g_var']"
+
+# rule scope支持标准的单元格坐标，同时也支持$MIN_ROW、$MAX_ROW、$MIN_COL、$MAX_COL等变量，e.g：
+# "A1": 指定特定单元格A1
+# "A": 指定特定列A
+# "1": 指定特定行1
+# "A1:F5": 指定特定单元格范围A1:F5
+# "A$MIN_ROW:F$MAX_ROW": 指定特定单元格区域，即当前worksheet中A列最小行到F列最大的行的范围
+
+# 可以为指定scope定义单个规则
+# "scope" = primitive_value | CellRule
+[rules]
+# 单个基本类型的值
+A1 = "single primitive value"
+# 单个CellRule
+B = {fn = "random", args = ["randint", 20, 65], per_cell = true, kwargs={}}
+"C$MIN_ROW:F$MAX_ROW" = {fn = "fake", args = ["name",], per_cell = true, kwargs={}}
+
+# 可以为指定scope定义多个CellRule
+# 使用表数组即“[[rules."scope"]]”实现这一点
+[[rules."E$MIN_ROW:G$MAX_ROW"]]
+fn = "fake"
+args = ["address",]
+kwargs = {}
+per_cell = true
+
+[[rules."E$MIN_ROW:G$MAX_ROW"]]
+fn = "fake"
+args = ["email",]
+kwargs = {}
+per_cell = true
+

@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "excel-auto-filler"
+version = "0.1.0"
+description = ""
+authors = ["zimolab <zimolab@aliyun.com>"]
+readme = "README.md"
+packages = [{include = "excelfiller", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10 <3.13.0"
+simple-dataclass-configuration = "^0.1.2"
+openpyxl = "^3.1.2"
+pillow = "^10.2.0"
+faker = "^23.1.0"
+blinker = "^1.7.0"
+docopt = "^0.6.2"
+rich = "^13.7.0"
+tomli = "^2.0.1"
+tomli-w = "^1.0.0"
+colored = "1.4.4"
+
+[tool.poetry.scripts]
+excelfiller = "excelfiller_executable.main:main"
+build = "pyinstaller ./src/excelfiller_executable/main.py"
+
+
+[tool.poetry.group.dev.dependencies]
+pyinstaller = "^6.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

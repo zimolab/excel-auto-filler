@@ -1,0 +1,63 @@
+rules:
+  A1: 姓名
+  A2:A20:
+    args:
+    - name
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  B1: 性别
+  B2:B20:
+    args:
+    - choice
+    fn: random
+    kwargs:
+      seq:
+      - 男
+      - 女
+    per_cell: true
+  C1: 身份证号
+  C2:C20:
+    args:
+    - ssn
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  D1: 手机号码
+  D2:D20:
+    args:
+    - phone_number
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  E1: 邮箱
+  E2:E20:
+    args:
+    - email
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  F1: 地址
+  F2:F20:
+    args:
+    - address
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  G1: 公司
+  G2:G20:
+    args:
+    - company
+    fn: fake
+    kwargs: {}
+    per_cell: false
+  H1: 职位
+  H2:H20:
+    args:
+    - job
+    fn: fake
+    kwargs: {}
+    per_cell: true
+  J1: 信用卡号
+rules_globals: {}
+version: 1

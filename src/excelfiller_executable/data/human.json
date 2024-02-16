@@ -1,0 +1,65 @@
+{
+    "version": 1,
+    "rules_globals": {},
+    "rules": {
+        "A1": "姓名",
+        "B1": "性别",
+        "C1": "身份证号",
+        "D1": "手机号码",
+        "E1": "邮箱",
+        "F1": "地址",
+        "G1": "公司",
+        "H1": "职位",
+        "J1": "信用卡号",
+        "A2:A20": {
+            "fn": "fake",
+            "args": ["name"],
+            "kwargs": {},
+            "per_cell": true
+        },
+        "B2:B20": {
+            "fn": "random",
+            "args": ["choice"],
+            "kwargs": {
+                "seq": ["男", "女"]
+            },
+            "per_cell": true
+        },
+        "C2:C20": {
+            "fn": "fake",
+            "args": ["ssn"],
+            "kwargs": {},
+            "per_cell": true
+        },
+        "D2:D20": {
+            "fn": "fake",
+            "args": ["phone_number"],
+            "kwargs": {},
+            "per_cell": true
+        },
+        "E2:E20": {
+            "fn": "fake",
+            "args": ["email"],
+            "kwargs": {},
+            "per_cell": true
+        },
+        "F2:F20": {
+            "fn": "fake",
+            "args": ["address"],
+            "kwargs": {},
+            "per_cell": true
+        },
+        "G2:G20": {
+            "fn": "fake",
+            "args": ["company"],
+            "kwargs": {},
+            "per_cell": false
+        },
+        "H2:H20": {
+            "fn": "fake",
+            "args": ["job"],
+            "kwargs": {},
+            "per_cell": true
+        }
+    }
+}
