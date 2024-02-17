@@ -16,30 +16,29 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QSplitter" name="splitter">
+     <widget class="QSplitter" name="splitter_2">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="">
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>参数</string>
+       </property>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>目标文件</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLineEdit" name="edit_target_file"/>
+        </item>
         <item row="1" column="1">
          <widget class="QPushButton" name="button_select_target_file">
           <property name="text">
            <string>选择文件</string>
-          </property>
-         </widget>
-        </item>
-        <item row="8" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkbox_create">
-          <property name="text">
-           <string>目标文件/工作表不存在时自动创建</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkbox_save_anyway">
-          <property name="text">
-           <string>发生异常时仍保存当前结果保存到目标文件</string>
           </property>
          </widget>
         </item>
@@ -50,6 +49,9 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0">
+         <widget class="QLineEdit" name="edit_save_as_file"/>
+        </item>
         <item row="3" column="1">
          <widget class="QPushButton" name="button_select_save_as_file">
           <property name="text">
@@ -58,67 +60,71 @@
          </widget>
         </item>
         <item row="4" column="0" colspan="2">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>目标工作表名称（若为空则使用当前活动工作表）</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLineEdit" name="edit_sheetname"/>
+        </item>
+        <item row="6" column="0">
          <widget class="QLabel" name="label_3">
           <property name="text">
            <string>规则配置文件</string>
           </property>
          </widget>
         </item>
-        <item row="9" column="0" colspan="2">
-         <widget class="QCheckBox" name="checkbox_quick_fail">
-          <property name="text">
-           <string>发生异常时立时终止运行</string>
-          </property>
-         </widget>
+        <item row="7" column="0">
+         <widget class="QLineEdit" name="edit_rules_config_file"/>
         </item>
-        <item row="10" column="0" colspan="2">
-         <widget class="QCheckBox" name="check_overwrite">
-          <property name="text">
-           <string>允许覆盖已存在的文件</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0" colspan="2">
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>目标文件</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLineEdit" name="edit_target_file"/>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLineEdit" name="edit_save_as_file"/>
-        </item>
-        <item row="5" column="1">
+        <item row="7" column="1">
          <widget class="QPushButton" name="button_select_rules_config_file">
           <property name="text">
            <string>选择文件</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLineEdit" name="edit_rules_config_file"/>
-        </item>
-        <item row="6" column="0" colspan="2">
+        <item row="8" column="0" colspan="2">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>配置文件编码（默认使用utf-8编码）</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="9" column="0">
          <widget class="QLineEdit" name="edit_encoding"/>
         </item>
-        <item row="15" column="1">
-         <widget class="QCheckBox" name="checkbox_clear_output">
+        <item row="10" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkbox_create">
           <property name="text">
-           <string>每次处理前清空输出</string>
+           <string>目标文件/工作表不存在时自动创建</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QCheckBox" name="checkbox_quick_fail">
+          <property name="text">
+           <string>发生异常时立时终止运行</string>
           </property>
          </widget>
         </item>
         <item row="12" column="0">
+         <widget class="QCheckBox" name="check_overwrite">
+          <property name="text">
+           <string>允许覆盖已存在的文件</string>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0" colspan="2">
+         <widget class="QCheckBox" name="checkbox_save_anyway">
+          <property name="text">
+           <string>发生异常时仍保存当前结果保存到目标文件</string>
+          </property>
+         </widget>
+        </item>
+        <item row="14" column="0">
          <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -126,17 +132,27 @@
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>40</height>
+            <height>195</height>
            </size>
           </property>
          </spacer>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>输出/日志</string>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="QTextBrowser" name="textbrowser_output"/>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="checkbox_clear_output">
+          <property name="text">
+           <string>每次处理前清空输出</string>
+          </property>
+         </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout">

@@ -22,10 +22,10 @@ WINDOW_TITLE = "Excel表格填充器"
 
 
 @dataclasses.dataclass
-class Arguments(object):
+class _Arguments(object):
     target_file: str
     rules_config_file: str
-    sheet: int | str | None = None
+    sheet: int | str = ""
     save_as_file: str = ""
     encoding: str = DEFAULT_ENCODING
     overwrite: bool = False
@@ -51,8 +51,9 @@ class RuleProcessorWindow(QMainWindow):
         self.setWindowTitle(WINDOW_TITLE)
         self.setup_output_textbrowser()
 
-        self.update_ui_with_arguments(Arguments(
+        self.update_ui_with_arguments(_Arguments(
             target_file="",
+            sheet="",
             rules_config_file="",
             save_as_file="",
             encoding=DEFAULT_ENCODING,
@@ -90,9 +91,10 @@ class RuleProcessorWindow(QMainWindow):
 
         self._ui.textbrowser_output.setStyleSheet(terminal_styles.stylesheet())
 
-    def collect_arguments(self) -> Arguments:
-        arguments = Arguments(
+    def collect_arguments(self) -> _Arguments:
+        arguments = _Arguments(
             target_file=self._ui.edit_target_file.text().strip(),
+            sheet=self._ui.edit_sheetname.text(),
             rules_config_file=self._ui.edit_rules_config_file.text().strip(),
             save_as_file=self._ui.edit_save_as_file.text().strip() or "",
             encoding=self._ui.edit_encoding.text().strip() or DEFAULT_ENCODING,
@@ -103,7 +105,7 @@ class RuleProcessorWindow(QMainWindow):
         )
         return arguments
 
-    def validate_arguments(self, arguments: Arguments) -> bool:
+    def validate_arguments(self, arguments: _Arguments) -> bool:
         if not arguments.target_file:
             self.show_error("请填写目标文件路径")
             return False
@@ -114,13 +116,6 @@ class RuleProcessorWindow(QMainWindow):
         if not os.path.isfile(arguments.rules_config_file):
             self.show_error("规则配置文件不存在")
             return False
-        # if os.path.isfile(arguments.target_file) and not arguments.overwrite:
-        #     self.show_error("目标文件已存在，如需覆盖，请先选择【允许覆盖已存在的文件】选项！")
-        #     return False
-        #
-        # if os.path.isfile(arguments.save_as_file) and not arguments.overwrite:
-        #     self.show_error("欲另存为的文件已存在，如需覆盖，请先选择【允许覆盖已存在的文件】选项！")
-        #     return False
         save_as_file = arguments.save_as_file
         if save_as_file:
             save_path = os.path.normcase(os.path.abspath(save_as_file))
@@ -133,8 +128,9 @@ class RuleProcessorWindow(QMainWindow):
 
         return True
 
-    def update_ui_with_arguments(self, arguments: Arguments):
+    def update_ui_with_arguments(self, arguments: _Arguments):
         self._ui.edit_target_file.setText(arguments.target_file)
+        self._ui.edit_sheetname.setText(arguments.sheet)
         self._ui.edit_rules_config_file.setText(arguments.rules_config_file)
         self._ui.edit_save_as_file.setText(arguments.save_as_file or "")
         self._ui.edit_encoding.setText(arguments.encoding)
