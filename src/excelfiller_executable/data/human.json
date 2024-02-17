@@ -60,6 +60,12 @@
             "args": ["job"],
             "kwargs": {},
             "per_cell": true
+        },
+        "J2:J20": {
+            "fn": "fake",
+            "args": ["credit_card_number"],
+            "kwargs": {},
+            "per_cell": true
         }
     }
 }

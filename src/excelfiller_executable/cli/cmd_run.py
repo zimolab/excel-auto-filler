@@ -182,18 +182,18 @@ class CommandRunRules(CLICommand):
             self.cli.print(f"[Info] '{dest}' saved", style=STYLE_SUCCESS)
 
     def connect_signals(self):
-        self.cli.rules_processor.started.connect(self._on_started)
-        self.cli.rules_processor.finished.connect(self._on_finished)
-        self.cli.rules_processor.before_executed.connect(self._before_executed)
-        self.cli.rules_processor.succeed.connect(self._on_succeed)
-        self.cli.rules_processor.failed.connect(self._on_failed)
+        self.cli.rules_processor.processing_started.connect(self._on_started)
+        self.cli.rules_processor.processing_finished.connect(self._on_finished)
+        self.cli.rules_processor.before_rule_executed.connect(self._before_executed)
+        self.cli.rules_processor.rule_execution_succeed.connect(self._on_succeed)
+        self.cli.rules_processor.rule_execution_failed.connect(self._on_failed)
 
     def disconnect_signals(self):
-        self.cli.rules_processor.started.disconnect(self._on_started)
-        self.cli.rules_processor.finished.disconnect(self._on_finished)
-        self.cli.rules_processor.before_executed.disconnect(self._before_executed)
-        self.cli.rules_processor.succeed.disconnect(self._on_succeed)
-        self.cli.rules_processor.failed.disconnect(self._on_failed)
+        self.cli.rules_processor.processing_started.disconnect(self._on_started)
+        self.cli.rules_processor.processing_finished.disconnect(self._on_finished)
+        self.cli.rules_processor.before_rule_executed.disconnect(self._before_executed)
+        self.cli.rules_processor.rule_execution_succeed.disconnect(self._on_succeed)
+        self.cli.rules_processor.rule_execution_failed.disconnect(self._on_failed)
 
     def start(self, workbook: Workbook, worksheet: Worksheet, rules_config: CellRulesConfig, quick_fail: bool):
         if self.cli.rules_processor.is_processing():

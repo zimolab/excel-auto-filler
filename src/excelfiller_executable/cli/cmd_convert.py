@@ -1,8 +1,7 @@
 import os.path
 
-from excelfiller.rule import CellRulesConfigFactory
 from excelfiller_executable.cli.cli import CLICommand, CellRulesProcessorCLI, STYLE_ERROR
-from excelfiller_executable.common import DEFAULT_ENCODING
+from excelfiller_executable.common import DEFAULT_ENCODING, convert_rules_config_file
 
 
 class CommandConvert(CLICommand):
@@ -23,14 +22,13 @@ class CommandConvert(CLICommand):
             self.cli.print(f"[Error]File '{self.output_file}' already exists, use --overwrite to overwrite it ",
                            style=STYLE_ERROR)
             return
+        try:
+            convert_rules_config_file(input_file=self.input_file, output_file=self.output_file, encoding=self.encoding)
+        except ValueError as e:
+            self.cli.print(f"[Error] {e}")
+        except BaseException as e:
+            self.cli.print(f"[Error] {e}")
+            self.cli.print_exception()
 
-        factory = CellRulesConfigFactory()
-        input_config = factory.load(path=self.input_file, encoding=self.encoding)
-        output_filetype = factory.get_filetype(self.output_file)
-        output_config_type = factory.get(output_filetype)
-        if not output_config_type:
-            self.cli.print(f"[Error] output file type not supported: {output_filetype}", style=STYLE_ERROR)
-            return
-        output_config = output_config_type.from_object(input_config.as_object())
-        output_config.save(filepath=self.output_file, encoding=self.encoding)
+
 

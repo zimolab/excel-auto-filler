@@ -52,11 +52,12 @@ class CellRulesProcessor(object):
 
     def __init__(self):
         self.function_registry = FunctionRegistry()
-        self.started = blinker.Signal()
-        self.finished = blinker.Signal()
-        self.before_executed = blinker.Signal()
-        self.succeed = blinker.Signal()
-        self.failed = blinker.Signal()
+        self.processing_started = blinker.Signal()
+        self.processing_finished = blinker.Signal()
+        self.processing_errored = blinker.Signal()
+        self.before_rule_executed = blinker.Signal()
+        self.rule_execution_succeed = blinker.Signal()
+        self.rule_execution_failed = blinker.Signal()
 
         self._worksheet_vars_map = {
             "MIN_COL": self._get_min_col,
@@ -76,7 +77,7 @@ class CellRulesProcessor(object):
             raise RuntimeError("a task is already running")
         self._is_processing = True
         # 发送started信号
-        self.started.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
+        self.processing_started.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
         # 调用主逻辑
         self._core_logic(rules_config, workbook, worksheet, stop_event=None, quick_fail=quick_fail)
 
@@ -92,9 +93,9 @@ class CellRulesProcessor(object):
             "stop_event": self._stop_evnet,
             "quick_fail": quick_fail
         })
-        thread.start()
         # 发送started信号
-        self.started.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
+        self.processing_started.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
+        thread.start()
 
     def is_processing(self):
         return self._is_processing
@@ -104,19 +105,24 @@ class CellRulesProcessor(object):
 
     def _core_logic(self, rules_config: CellRulesConfig, workbook: Workbook, worksheet: Worksheet,
                     stop_event: threading.Event | None, quick_fail: bool = False):
-        if stop_event:
-            stop_event.clear()
-        # 确定当前worksheet相关变量的具体值，如$MIN_COL、$MAX_COL、$MIN_ROW、$MAX_ROW等
-        worksheet_vars = determine_values(self._worksheet_vars_map, worksheet)
-        # 从rules列表中取出每一个待处理的项
-        for item in rules_config.rules.items():
+
+        try:
+            if stop_event:
+                stop_event.clear()
+            # 确定当前worksheet相关变量的具体值，如$MIN_COL、$MAX_COL、$MIN_ROW、$MAX_ROW等
+            worksheet_vars = determine_values(self._worksheet_vars_map, worksheet)
+        except BaseException as e:
+            self.processing_errored.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config,
+                                         error=e)
+            self._is_processing = False
+            self.processing_finished.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
+            return
+
+            # 从rules列表中取出每一个待处理的项
+        for rule_scope, rule_scope_target in rules_config.rules.items():
             # 处理中途退出请求
             if stop_event and stop_event.is_set():
                 break
-
-            # rule_scope -> List[CellRule] | CellRule | PrimitiveDataType
-            rule_scope: str = item[0]
-            rule_scope_target: List[CellRule] | PrimitiveDataType | CellRule = item[1]
 
             context = None
             cur_rule = None
@@ -132,15 +138,15 @@ class CellRulesProcessor(object):
                 )
 
                 if is_primitive_data_type(rule_scope_target) or isinstance(rule_scope_target, CellRule):
-                    # 如果rule_scope_target是单个的值，及单个PrimitiveDataType或单个CellRule，则直接执行
+                    # 如果rule_scope_target是单个的值及单个PrimitiveDataType或单个CellRule，则直接执行
                     cur_rule = rule_scope_target
                     # 发送before_executed信号
-                    self.before_executed.send(self, context=context, rule_scope_target=rule_scope_target)
+                    self.before_rule_executed.send(self, context=context, rule_scope_target=rule_scope_target)
                     self._execute_rule(context, cur_rule)
                 elif isinstance(rule_scope_target, list):
                     # 发送before_executed信号
-                    self.before_executed.send(self, context=context, rule_scope_target=rule_scope_target)
-                    # 如果rule_list是CellRule列表，则执行列表中的每一个CellRule
+                    self.before_rule_executed.send(self, context=context, rule_scope_target=rule_scope_target)
+                    # 如果rule_scope_target是CellRule列表，则执行列表中的每一个CellRule
                     for rule in rule_scope_target:
                         cur_rule = rule
                         self._execute_rule(context, cur_rule)
@@ -148,25 +154,27 @@ class CellRulesProcessor(object):
                     raise TypeError(f"invalid type of rule_scope_target: {type(rule_scope_target)}")
             except BaseException as e:
                 # 发送failed信号
-                self.failed.send(self, context=context, rule=cur_rule, error=e)
+                self.rule_execution_failed.send(self, context=context, rule=cur_rule, error=e)
                 # 如果quick_fail为True，则在发生错误时立即跳出循环
                 if quick_fail:
                     break
+
         if stop_event:
             stop_event.clear()
         self._is_processing = False
         # 发送finished信号
-        self.finished.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
+        self.processing_finished.send(self, workbook=workbook, worksheet=worksheet, rules_config=rules_config)
 
     def _execute_rule(self, context: FunctionContext, rule_or_value: CellRule | PrimitiveDataType):
         """单条rule的执行逻辑"""
-        if (not is_primitive_data_type(rule_or_value)) and (not isinstance(rule_or_value, CellRule)) and (rule_or_value != NULL):
+        if (not is_primitive_data_type(rule_or_value)) and (not isinstance(rule_or_value, CellRule)) and (
+                rule_or_value != NULL):
             # 首先确保rule_or_value是CellRule或PrimitiveDataType
             raise TypeError(f"invalid type of rule: {type(rule_or_value)}")
 
         if rule_or_value == NULL:
             # 发送succeed信号
-            self.succeed.send(self, context=context, rule=rule_or_value, result=NULL)
+            self.rule_execution_succeed.send(self, context=context, rule=rule_or_value, result=NULL)
             return
 
         # 获取rule_scope中的全部cell
@@ -186,24 +194,28 @@ class CellRulesProcessor(object):
                 # 否则，对cells整体执行一次fn，即只执行一次fn
                 result = self._execute_for_scope(fn, context, rule_or_value, cells)
             # 发送succeed信号
-            self.succeed.send(self, context=context, rule=rule_or_value, result=result)
+            self.rule_execution_succeed.send(self, context=context, rule=rule_or_value, result=result)
             return
-
         # 如果rule_or_value是PrimitiveDataType，则直接将其值赋给cells中的每个cell
-        if is_primitive_data_type(rule_or_value):
+        elif is_primitive_data_type(rule_or_value):
             result = rule_or_value
             for cell in flatten(cells):
                 self._apply_result_to(cell, result)
             # 发送succeed信号
-            self.succeed.send(self, context=context, rule=rule_or_value, result=result)
+            self.rule_execution_succeed.send(self, context=context, rule=rule_or_value, result=result)
             return
+        else:
+            raise RuntimeError("LOGIC ERROR: IT SHOULD NEVER GOES HERE!")
 
     def _execute_per_cell(self, fn: BaseFunction, context: FunctionContext, rule: CellRule,
                           cells: Cell | MergedCell | Iterable) -> List[Any]:
         results = {}
         for current_cell in flatten(cells):
+            # 对每个单元格执行fn
             result = fn.invoke(context, current_cell, *rule.args, **rule.kwargs)
+            # 收集并记录执行结果
             results[current_cell] = result
+        # 将执行结果运用到对应的单元格上
         for current_cell, cell_value in results.items():
             self._apply_result_to(current_cell, cell_value)
         return [*results.values()]
@@ -211,8 +223,10 @@ class CellRulesProcessor(object):
     def _execute_for_scope(self, fn: BaseFunction, context: FunctionContext, rule: CellRule,
                            cells: Cell | MergedCell | Iterable) -> Any:
         current_cell = None
+        # 对整个scope执行fn，并收集执行结果
         result = fn.invoke(context, current_cell, *rule.args, **rule.kwargs)
         if result != NULL:
+            # 将执行结果运用到scope内所有单元格上
             for cell in flatten(cells):
                 self._apply_result_to(cell, result)
         return result
