@@ -1,5 +1,6 @@
 import dataclasses
 import os.path
+import webbrowser
 
 from PySide2.QtGui import QTextCursor
 from PySide2.QtWidgets import QMainWindow, QMessageBox, QFileDialog
@@ -10,15 +11,16 @@ from openpyxl.worksheet.worksheet import Worksheet
 from excelfiller.rule import CellRulesConfig
 from excelfiller_executable.common import DEFAULT_ENCODING, create_xlsx_file
 from excelfiller_executable.gui.generated_code.main_window import Ui_MainWindow
-from excelfiller_executable.gui.ui.common import RULES_CONFIG_FILE_FILTER
+from excelfiller_executable.gui.ui.common import RULES_CONFIG_FILE_FILTER, PROG_NAME, VERSION, WEBSITE
 from excelfiller_executable.gui.ui.convert_dialog import ConvertDialog
 from excelfiller_executable.gui.ui.mainwindow import terminal_styles
+from excelfiller_executable.gui.ui.mainwindow.about_dialog import AboutDialog
 from excelfiller_executable.gui.ui.mainwindow.controller import CellRulesProcessingController
 from excelfiller_executable.gui.ui.mainwindow.handler import _ProcessorEventHandler
 from excelfiller_executable.gui.ui.mainwindow.terminal_styles import LogLevel
 from excelfiller_executable.gui.ui.new_rules_dialog import NewRulesConfigDialog
 
-WINDOW_TITLE = "Excel表格填充器"
+WINDOW_TITLE = f"{PROG_NAME} V{VERSION}"
 
 
 @dataclasses.dataclass
@@ -75,6 +77,8 @@ class RuleProcessorWindow(QMainWindow):
 
         self._ui.action_convert.triggered.connect(self.on_action_convert_triggered)
         self._ui.action_new_rules_config.triggered.connect(self.on_action_new_rules_config_triggered)
+        self._ui.action_about.triggered.connect(self.open_about_dialog)
+        self._ui.action_help.triggered.connect(self.open_help_dialog)
 
     def on_action_convert_triggered(self):
         dialog = ConvertDialog(self)
@@ -337,3 +341,11 @@ class RuleProcessorWindow(QMainWindow):
     @property
     def ui(self):
         return self._ui
+
+    def open_about_dialog(self):
+        dialog = AboutDialog(self)
+        dialog.exec_()
+
+    def open_help_dialog(self):
+        if self.show_confirm("目前帮助文档尚未编写，本项目为开源项目，所有源码均已公开，是否跳转到本项目仓库？"):
+            webbrowser.open(WEBSITE)

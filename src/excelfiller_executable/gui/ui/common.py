@@ -1,1 +1,6 @@
+PROG_NAME = "Excel表格自动填充器"
+VERSION = "0.1.0"
+AUTHOR = "zimolab"
+CONTACT = "zimolab@aliyun.com"
+WEBSITE = "https://github.com/zimolab/excel-auto-filler"
 RULES_CONFIG_FILE_FILTER = "JSON文件 (*.json);;TOML文件 (*.toml);;YAML文件 (*.yaml);;所有文件 (*.*)"
